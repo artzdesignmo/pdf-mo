@@ -120,12 +120,13 @@ h1{font-family:"Dela Gothic One","Noto Sans TC",sans-serif;font-size:clamp(30px,
 const $=s=>document.querySelector(s);
 const LEVELS={high:{maxDim:1200,q:0.60,f:0.12},medium:{maxDim:1800,q:0.80,f:0.30},low:{maxDim:2400,q:0.90,f:0.55}};
 const I18N={
-en:{title:"Compress PDF",addfiles:"Add files",sub:"Content always preserved — text, images and layout stay exactly as they were. Processed locally, nothing is uploaded.",drop:"Drop PDF here or click to select",dropnote:"Drag anywhere on this page · Free: one file at a time · Batch is a Pro feature",lvlabel:"Select compression level:",cancel:"Cancel",compress:"Compress",proT:"OpenX Pro — Batch compress",proD:"Batch compress lets you drop many PDFs at once and compress them all. Enter your Pro key once — it unlocks Pro on every OpenX tool.",unlock:"Unlock",close:"Close",getkey:"Get a Pro key →",foot1:"PDF-MO · an OpenX tool · files are processed locally in your browser, nothing is uploaded.",foot2:"Compression concept inspired by pdfcpu — this tool is an independent browser implementation. Every mode preserves the original content; images it cannot safely recompress are left untouched.",lvlHigh:"High",lvlMed:"Medium",lvlLow:"Low",dHigh:"Smallest size, standard quality",dMed:"Medium size, better quality",dLow:"Larger size, highest quality",tagBest:"Best compression",est:"Estimated",analyzing:"Analyzing…",scanning:"Scanning images…",pages:"pages",images:"images",waiting:"Waiting",working:"Compressing…",done:"Done",error:"Failed",fallback:"Original kept — output did not pass verification",proOn:"Pro unlocked — batch enabled",proOff:"Batch compress is a Pro feature",unlockBtn:"Unlock Pro",encErr:"This PDF is encrypted or cannot be read"},
-zh:{title:"壓縮 PDF",addfiles:"加入檔案",sub:"內容一定保留 — 文字、圖片、排版原封不動。全程本地處理，唔會上傳。",drop:"拖 PDF 入嚟，或撳呢度選擇",dropnote:"成版都拖得 · 免費：一次一個檔案 · 批量處理係 Pro 功能",lvlabel:"選擇壓縮程度：",cancel:"取消",compress:"開始壓縮",proT:"OpenX Pro — 批量壓縮",proD:"批量壓縮可以一次拖入多個 PDF 全部壓晒。輸入一次 Pro key，成個 OpenX 系列工具都解鎖。",unlock:"解鎖",close:"關閉",getkey:"攞 Pro key →",foot1:"PDF-MO · OpenX 工具 · 檔案喺你瀏覽器本地處理，唔會上傳。",foot2:"壓縮概念參考 pdfcpu — 本工具為獨立嘅瀏覽器實現。所有模式都保留原有內容；唔能夠安全重壓嘅圖片會原樣保留。",lvlHigh:"高",lvlMed:"中",lvlLow:"低",dHigh:"檔案最細，畫質標準",dMed:"大細適中，畫質較好",dLow:"檔案較大，畫質最高",tagBest:"壓縮效果最好",est:"預估約",analyzing:"分析緊…",scanning:"掃描圖片中…",pages:"頁",images:"張圖片",waiting:"等緊",working:"壓縮緊…",done:"完成",error:"失敗",fallback:"已保留原檔 — 成品驗證未通過",proOn:"Pro 已解鎖 — 可以批量處理",proOff:"批量壓縮係 Pro 功能",unlockBtn:"解鎖 Pro",encErr:"此 PDF 已加密或無法讀取"}};
+en:{title:"Compress PDF",addfiles:"Add files",sub:"Content always preserved — text, images and layout stay exactly as they were. Processed locally, nothing is uploaded.",drop:"Drop PDF here or click to select",dropnote:"Drag anywhere on this page · Free: one file at a time · Batch is a Pro feature",lvlabel:"Select compression level:",cancel:"Cancel",compress:"Compress",proT:"OpenX Pro — Batch compress",proD:"Batch compress lets you drop many PDFs at once and compress them all. Enter your Pro key once — it unlocks Pro on every OpenX tool.",unlock:"Unlock",close:"Close",getkey:"Get a Pro key →",foot1:"PDF-MO · an OpenX tool · files are processed locally in your browser, nothing is uploaded.",foot2:"Compression concept inspired by pdfcpu — this tool is an independent browser implementation. Every mode preserves the original content; images it cannot safely recompress are left untouched.",lvlHigh:"High",lvlMed:"Medium",lvlLow:"Low",dHigh:"Smallest size, standard quality",dMed:"Medium size, better quality",dLow:"Larger size, highest quality",tagBest:"Best compression",est:"Estimated",estimating:"Estimating sizes in the background…",estFail:"Estimate unavailable — you can compress directly.",pages:"pages",images:"images",waiting:"Waiting",loading:"Loading file (large files take longer)…",recompressing:"Recompressing images",saving:"Writing output…",verifying:"Verifying…",done:"Done",error:"Failed",cancelled:"Cancelled",fallback:"Original kept — output did not pass verification",proOn:"Pro unlocked — batch enabled",proOff:"Batch compress is a Pro feature",unlockBtn:"Unlock Pro",encErr:"This PDF is encrypted or cannot be read",elapsed:"elapsed",remaining:"remaining about",sec:"s"},
+zh:{title:"壓縮 PDF",addfiles:"加入檔案",sub:"內容一定保留 — 文字、圖片、排版原封不動。全程本地處理，唔會上傳。",drop:"拖 PDF 入嚟，或撳呢度選擇",dropnote:"成版都拖得 · 免費：一次一個檔案 · 批量處理係 Pro 功能",lvlabel:"選擇壓縮程度：",cancel:"取消",compress:"開始壓縮",proT:"OpenX Pro — 批量壓縮",proD:"批量壓縮可以一次拖入多個 PDF 全部壓晒。輸入一次 Pro key，成個 OpenX 系列工具都解鎖。",unlock:"解鎖",close:"關閉",getkey:"攞 Pro key →",foot1:"PDF-MO · OpenX 工具 · 檔案喺你瀏覽器本地處理，唔會上傳。",foot2:"壓縮概念參考 pdfcpu — 本工具為獨立嘅瀏覽器實現。所有模式都保留原有內容；唔能夠安全重壓嘅圖片會原樣保留。",lvlHigh:"高",lvlMed:"中",lvlLow:"低",dHigh:"檔案最細，畫質標準",dMed:"大細適中，畫質較好",dLow:"檔案較大，畫質最高",tagBest:"壓縮效果最好",est:"預估約",estimating:"背景估算緊預估大細…",estFail:"預估未能完成，可直接壓縮。",pages:"頁",images:"張圖片",waiting:"等緊",loading:"載入檔案中（大檔需時較長）…",recompressing:"重壓圖片中",saving:"寫出檔案中…",verifying:"驗證中…",done:"完成",error:"失敗",cancelled:"已取消",fallback:"已保留原檔 — 成品驗證未通過",proOn:"Pro 已解鎖 — 可以批量處理",proOff:"批量壓縮係 Pro 功能",unlockBtn:"解鎖 Pro",encErr:"此 PDF 已加密或無法讀取",elapsed:"已用",remaining:"預計剩餘約",sec:"秒"}};
 let lang=localStorage.getItem('pdf-mo-lang')||'en';
 let level='high';
 let pro=localStorage.getItem('openx-pro-ok')==='1';
 let queue=[];
+let estWorker=null,estTimer=null,cancelFlag=false,tickTimer=null;
 function fmt(b){if(b<1024)return b+' B';if(b<1048576)return (b/1024).toFixed(1)+' KB';return (b/1048576).toFixed(2)+' MB';}
 function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function setLang(l){lang=l;localStorage.setItem('pdf-mo-lang',l);
@@ -144,74 +145,70 @@ function renderLevels(){$('#levels').innerHTML=['high','medium','low'].map(lv=>{
 return '<button class="lv'+(level===lv?' sel':'')+'" data-lv="'+lv+'">'+(lv==='high'?'<span class="tag">'+L.tagBest+'</span>':'')+'<span class="dot"></span><b>'+nm+'</b><p>'+d+'</p><div class="est">'+L.est+' '+(queue[0]?estFor(queue[0],lv):'—')+'</div></button>';}).join('');
 document.querySelectorAll('#levels .lv').forEach(b=>b.onclick=()=>{level=b.dataset.lv;renderLevels();});}
 function renderFileCard(){const c=$('#fileCard');if(!queue.length){c.innerHTML='';return;}
-const q=queue[0];c.innerHTML='<div class="filecard">'+(q.thumb?'<img src="'+q.thumb+'" alt="">':'')+'<div style="flex:1"><div class="nm">'+esc(q.file.name)+'</div><div class="meta">PDF · '+fmt(q.orig)+(q.analyzed?' · '+q.pages+' '+I18N[lang].pages+' · '+q.imgCount+' '+I18N[lang].images:'')+'</div></div><button class="x" onclick="rmFile(0)">×</button></div>';}
-window.rmFile=()=>{queue=[];renderFileCard();renderQueue();renderLevels();$('#goBtn').disabled=true;$('#ana').textContent='';};
+const q=queue[0];c.innerHTML='<div class="filecard"><div style="width:56px;height:74px;border:1px solid var(--line);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:\'Dela Gothic One\',sans-serif;font-size:13px;color:var(--accent)">PDF</div><div style="flex:1"><div class="nm">'+esc(q.file.name)+'</div><div class="meta">PDF · '+fmt(q.orig)+(q.analyzed?' · '+q.pages+' '+I18N[lang].pages+' · '+q.imgCount+' '+I18N[lang].images:'')+'</div></div><button class="x" onclick="rmFile()">×</button></div>';}
+window.rmFile=()=>{stopEstimator();queue=[];renderFileCard();renderQueue();renderLevels();$('#goBtn').disabled=true;$('#ana').textContent='';};
+function stageText(q){const L=I18N[lang];if(q.status!=='working')return '';
+let t=q.stage||'';if(q.elapsed!=null)t+=' · '+L.elapsed+' '+q.elapsed+L.sec;
+if(q.remaining!=null)t+=' · '+L.remaining+' '+q.remaining+L.sec;return t;}
 function renderQueue(){$('#queue').innerHTML=queue.map((q,i)=>{let st,cls='';
 if(q.status==='done'){st=I18N[lang].done+' · '+fmt(q.orig)+' → '+fmt(q.new)+' <span class="save">'+q.save+'%</span>';if(q.fallback){st+=' <span class="warn">· '+I18N[lang].fallback+'</span>';}}
-else if(q.status==='working')st=I18N[lang].working;
+else if(q.status==='working')st=stageText(q);
 else if(q.status==='error')st=I18N[lang].error+': '+q.err;
+else if(q.status==='cancelled')st=I18N[lang].cancelled;
 else st=I18N[lang].waiting;
 return '<div class="qrow"><div class="nm">'+esc(q.file.name)+'</div><div class="meta">'+st+'</div>'+(q.status==='done'?'<button class="dl" onclick="dl('+i+')">↓ '+I18N[lang].done+'</button>':'')+'<div class="bar"><i style="width:'+(q.pct||0)+'%"></i></div></div>';}).join('');}
 window.dl=i=>{const q=queue[i];if(!q.url)return;const a=document.createElement('a');a.href=q.url;a.download=q.fallback?q.file.name:q.file.name.replace(/\.pdf$/i,'')+'-compressed.pdf';a.click();};
-function pdfjs(){if(window['pdfjsLib']){pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';}return pdfjsLib;}
-function frame(){return new Promise(r=>setTimeout(r,0));}
-async function analyze(q){
-const t0=Date.now();
-try{$('#ana').textContent=I18N[lang].analyzing;
-const bytes=new Uint8Array(await q.file.arrayBuffer());
-await frame();
-const src=await pdfjs().getDocument({data:bytes}).promise;q.pages=src.numPages;
-if(q.file.size<=25*1048576){
-const pg=await src.getPage(1);const vp=pg.getViewport({scale:120/Math.max(pg.getViewport({scale:1}).width,1)});
-const cv=document.createElement('canvas');cv.width=Math.floor(vp.width);cv.height=Math.floor(vp.height);
-await pg.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;q.thumb=cv.toDataURL('image/jpeg',0.7);}
-await frame();
-$('#ana').textContent=I18N[lang].scanning;
-const doc=await PDFLib.PDFDocument.load(bytes);let imgBytes=0,imgCount=0,done=0;
-const objs=doc.context.enumerateIndirectObjects();
-for(const [,obj] of objs){done++;
-if(done%500===0){if(Date.now()-t0>30000)throw new Error('timeout');await frame();}
-if(!(obj instanceof PDFLib.PDFRawStream))continue;
-const sub=obj.dict.lookup(PDFLib.PDFName.of('Subtype'));
-if(sub&&sub.toString()==='/Image'){imgCount++;imgBytes+=obj.getContents().length;}}
-q.imgBytes=imgBytes;q.imgCount=imgCount;q.analyzed=true;q.bytes=bytes;
-$('#ana').textContent='';renderFileCard();renderLevels();}
-catch(e){
-if(e.message==='timeout'){q.analyzed=true;q.imgBytes=0;q.imgCount=0;q.estSkipped=true;
-$('#ana').textContent=lang==='zh'?'分析逾時，已跳過預估，可直接按壓縮。':'Analysis timed out — estimates skipped, you can still compress directly.';
-renderLevels();}
-else{q.err=I18N[lang].encErr;q.status='error';renderQueue();}}}
+const WORKER_SRC="importScripts('https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js');self.onmessage=async e=>{try{const bytes=new Uint8Array(await e.data.file.arrayBuffer());const doc=await PDFLib.PDFDocument.load(bytes);let imgBytes=0,imgCount=0;for(const[,obj]of doc.context.enumerateIndirectObjects()){if(!(obj instanceof PDFLib.PDFRawStream))continue;const sub=obj.dict.lookup(PDFLib.PDFName.of('Subtype'));if(sub&&sub.toString()==='/Image'){imgCount++;imgBytes+=obj.getContents().length;}}self.postMessage({ok:true,pages:doc.getPageCount(),imgBytes,imgCount});}catch(err){self.postMessage({ok:false,error:String(err)});}};";
+function stopEstimator(){if(estWorker){estWorker.terminate();estWorker=null;}if(estTimer){clearTimeout(estTimer);estTimer=null;}}
+function startEstimator(q){stopEstimator();
+try{estWorker=new Worker(URL.createObjectURL(new Blob([WORKER_SRC],{type:'text/javascript'})));
+$('#ana').textContent=I18N[lang].estimating;
+estTimer=setTimeout(()=>{q.estSkipped=true;$('#ana').textContent=I18N[lang].estFail;renderLevels();stopEstimator();},25000);
+estWorker.onmessage=e=>{stopEstimator();const d=e.data;
+if(d.ok&&queue[0]===q){q.pages=d.pages;q.imgBytes=d.imgBytes;q.imgCount=d.imgCount;q.analyzed=true;$('#ana').textContent='';renderFileCard();renderLevels();}
+else if(queue[0]===q){q.estSkipped=true;$('#ana').textContent=I18N[lang].estFail;renderLevels();}};
+estWorker.onerror=()=>{stopEstimator();if(queue[0]===q){q.estSkipped=true;$('#ana').textContent=I18N[lang].estFail;renderLevels();}};
+estWorker.postMessage({file:q.file});}
+catch(e){q.estSkipped=true;$('#ana').textContent=I18N[lang].estFail;renderLevels();}}
 async function addFiles(list){let arr=[...list].filter(f=>/\.pdf$/i.test(f.name));if(!arr.length)return;
 if(!pro&&arr.length>1){arr=arr.slice(0,1);$('#proModal').classList.add('show');}
+stopEstimator();
 queue=queue.concat(arr.map(f=>({file:f,status:'waiting',orig:f.size,pct:0,analyzed:false})));
 renderFileCard();renderQueue();renderLevels();$('#goBtn').disabled=false;
-for(const q of queue)if(!q.analyzed&&q.status!=='error')await analyze(q);}
+if(queue.length===1)startEstimator(queue[0]);}
 async function decodeJpeg(raw){try{return await createImageBitmap(new Blob([raw],{type:'image/jpeg'}));}
 catch(e){return await new Promise((res,rej)=>{const img=new Image();img.onload=()=>res(img);img.onerror=rej;img.src=URL.createObjectURL(new Blob([raw],{type:'image/jpeg'}));});}}
-async function compressPdf(bytes,cfg){const doc=await PDFLib.PDFDocument.load(bytes);
-const ctx=doc.context;const P=PDFLib;
-for(const [ref,obj] of ctx.enumerateIndirectObjects()){
-if(!(obj instanceof P.PDFRawStream))continue;
-try{const d=obj.dict;
-const sub=d.lookup(P.PDFName.of('Subtype'));if(!sub||sub.toString()!=='/Image')continue;
-if(d.lookup(P.PDFName.of('Mask')))continue;
+function eligibleImage(d){const P=PDFLib;
+const sub=d.lookup(P.PDFName.of('Subtype'));if(!sub||sub.toString()!=='/Image')return null;
+if(d.lookup(P.PDFName.of('Mask')))return null;
 const filt=d.lookup(P.PDFName.of('Filter'));let fName=null;
 if(filt instanceof P.PDFName)fName=filt.toString();
 else if(filt&&typeof filt.asArray==='function'){const a=filt.asArray();if(a.length&&a[0] instanceof P.PDFName)fName=a[0].toString();}
-if(fName!=='/DCTDecode')continue;
-const cs=d.lookup(P.PDFName.of('ColorSpace'));if(!(cs instanceof P.PDFName))continue;
-if(cs.toString()!=='/DeviceRGB'&&cs.toString()!=='/DeviceGray')continue;
-const bpc=d.lookup(P.PDFName.of('BitsPerComponent'));if(!bpc||bpc.asNumber()!==8)continue;
+if(fName!=='/DCTDecode')return null;
+const cs=d.lookup(P.PDFName.of('ColorSpace'));if(!(cs instanceof P.PDFName))return null;
+if(cs.toString()!=='/DeviceRGB'&&cs.toString()!=='/DeviceGray')return null;
+const bpc=d.lookup(P.PDFName.of('BitsPerComponent'));if(!bpc||bpc.asNumber()!==8)return null;
 const W=d.lookup(P.PDFName.of('Width')).asNumber(),H=d.lookup(P.PDFName.of('Height')).asNumber();
-if(!W||!H||W*H>16000000)continue;
+if(!W||!H||W*H>16000000)return null;
+return {W,H};}
+async function compressPdf(bytes,cfg,onPhase,onImage){const doc=await PDFLib.PDFDocument.load(bytes);
+const ctx=doc.context;const P=PDFLib;const jobs=[];
+for(const [ref,obj] of ctx.enumerateIndirectObjects()){
+if(!(obj instanceof P.PDFRawStream))continue;
+try{const d=obj.dict;const wh=eligibleImage(d);if(!wh)continue;
 const raw=obj.getContents();if(raw.length<2||raw[0]!==0xFF||raw[1]!==0xD8)continue;
-const bmp=await decodeJpeg(raw);
-const scale=Math.min(1,cfg.maxDim/Math.max(W,H));
-const nw=Math.max(1,Math.round(W*scale)),nh=Math.max(1,Math.round(H*scale));
+jobs.push({ref,d,raw,W:wh.W,H:wh.H});}catch(e){/* leave untouched */}}
+onPhase('images',jobs.length);
+let done=0;
+for(const job of jobs){
+if(cancelFlag)throw new Error('__cancelled__');
+try{const bmp=await decodeJpeg(job.raw);
+const scale=Math.min(1,cfg.maxDim/Math.max(job.W,job.H));
+const nw=Math.max(1,Math.round(job.W*scale)),nh=Math.max(1,Math.round(job.H*scale));
 const cv=document.createElement('canvas');cv.width=nw;cv.height=nh;
 cv.getContext('2d').drawImage(bmp,0,0,nw,nh);
-const blob=await new Promise(r=>cv.toBlob(r,'image/jpeg',cfg.q));if(!blob)continue;
-const nb=new Uint8Array(await blob.arrayBuffer());if(nb.length>=raw.length)continue;
+const blob=await new Promise(r=>cv.toBlob(r,'image/jpeg',cfg.q));if(!blob){done++;onImage(done);continue;}
+const nb=new Uint8Array(await blob.arrayBuffer());if(nb.length>=job.raw.length){done++;onImage(done);continue;}
 const nd=P.PDFDict.withContext(ctx);
 nd.set(P.PDFName.of('Type'),P.PDFName.of('XObject'));
 nd.set(P.PDFName.of('Subtype'),P.PDFName.of('Image'));
@@ -220,25 +217,41 @@ nd.set(P.PDFName.of('Height'),P.PDFNumber.of(nh));
 nd.set(P.PDFName.of('ColorSpace'),P.PDFName.of('DeviceRGB'));
 nd.set(P.PDFName.of('BitsPerComponent'),P.PDFNumber.of(8));
 nd.set(P.PDFName.of('Filter'),P.PDFName.of('DCTDecode'));
-const sm=d.lookup(P.PDFName.of('SMask'));if(sm)nd.set(P.PDFName.of('SMask'),sm);
-ctx.assign(ref,P.PDFRawStream.of(nd,nb));}
-catch(e){/* leave this image untouched — preservation first */}}
+const sm=job.d.lookup(P.PDFName.of('SMask'));if(sm)nd.set(P.PDFName.of('SMask'),sm);
+ctx.assign(job.ref,P.PDFRawStream.of(nd,nb));}
+catch(e){if(e.message==='__cancelled__')throw e;/* leave this image untouched */}
+done++;onImage(done);
+await new Promise(r=>setTimeout(r,0));}
+onPhase('save');
 doc.setTitle('');doc.setAuthor('');doc.setSubject('');doc.setKeywords([]);doc.setProducer('');doc.setCreator('');
 return await doc.save({useObjectStreams:true});}
-$('#goBtn').onclick=async()=>{$('#goBtn').disabled=true;
-for(let i=0;i<queue.length;i++){const q=queue[i];if(q.status==='done'||q.status==='error')continue;
-q.status='working';q.pct=2;renderQueue();
+$('#goBtn').onclick=async()=>{stopEstimator();cancelFlag=false;$('#goBtn').disabled=true;
+const jobs=[...queue];
+for(let i=0;i<jobs.length;i++){const q=jobs[i];if(q.status==='done'||q.status==='error')continue;
+q.status='working';q.pct=2;q.elapsed=0;q.remaining=null;q.stage=I18N[lang].loading;renderQueue();
+const t0=Date.now();let imgTotal=0,imgDone=0,imgPhaseStart=0;
+if(tickTimer)clearInterval(tickTimer);
+tickTimer=setInterval(()=>{q.elapsed=Math.floor((Date.now()-t0)/1000);
+if(imgTotal>0&&imgDone>0){const ph=(Date.now()-imgPhaseStart)/1000;q.remaining=Math.max(0,Math.round(ph*(imgTotal-imgDone)/imgDone));}
+renderQueue();},1000);
 try{if(!q.bytes)q.bytes=new Uint8Array(await q.file.arrayBuffer());
 const inPages=q.pages||(await PDFLib.PDFDocument.load(q.bytes)).getPageCount();
-let out=await compressPdf(q.bytes,LEVELS[level]);
+let out=await compressPdf(q.bytes,LEVELS[level],
+(phase,total)=>{if(phase==='images'){imgTotal=total;imgPhaseStart=Date.now();q.stage=I18N[lang].recompressing+' 0/'+total;q.pct=5;renderQueue();}
+else if(phase==='save'){q.stage=I18N[lang].saving;q.pct=96;renderQueue();}},
+done=>{imgDone=done;q.stage=I18N[lang].recompressing+' '+done+'/'+imgTotal;
+q.pct=imgTotal>0?Math.round(5+90*done/imgTotal):90;renderQueue();});
+if(cancelFlag)throw new Error('__cancelled__');
+q.stage=I18N[lang].verifying;q.pct=99;renderQueue();
 let ok=false;try{const chk=await PDFLib.PDFDocument.load(out);ok=chk.getPageCount()===inPages;}catch(e){ok=false;}
 if(!ok){q.fallback=true;q.new=q.orig;q.save=0;q.blob=new Blob([q.bytes],{type:'application/pdf'});}
 else{q.new=out.length;q.save=Math.max(0,Math.round((1-q.new/q.orig)*100));q.blob=new Blob([out],{type:'application/pdf'});}
-q.url=URL.createObjectURL(q.blob);q.status='done';q.pct=100;}
-catch(err){q.status='error';q.err=err.message||'error';}
+q.url=URL.createObjectURL(q.blob);q.status='done';q.pct=100;q.remaining=null;}
+catch(err){if(err.message==='__cancelled__'||cancelFlag){q.status='cancelled';}else{q.status='error';q.err=err.message||'error';}}
 renderQueue();}
+if(tickTimer){clearInterval(tickTimer);tickTimer=null;}
 $('#goBtn').disabled=false;};
-$('#cancelBtn').onclick=()=>{queue=[];renderFileCard();renderQueue();renderLevels();$('#goBtn').disabled=true;$('#ana').textContent='';};
+$('#cancelBtn').onclick=()=>{cancelFlag=true;stopEstimator();queue=[];renderFileCard();renderQueue();renderLevels();$('#goBtn').disabled=false;$('#ana').textContent='';};
 $('#addBtn').onclick=()=>$('#file').click();
 $('#drop').onclick=()=>$('#file').click();
 $('#file').onchange=e=>{addFiles(e.target.files);e.target.value='';};
@@ -258,5 +271,6 @@ setTimeout(()=>$('#proModal').classList.remove('show'),900);}
 else{msg.textContent=lang==='zh'?'Key 不正確，請再試。':'Invalid key, please try again.';msg.className='msg err';}}
 catch(e){msg.textContent=lang==='zh'?'驗證失敗，請檢查網絡再試。':'Validation failed, please check your connection.';msg.className='msg err';}};
 setLang(lang);renderNote();renderLevels();
+
 </script>
 </body></html>
