@@ -120,8 +120,8 @@ h1{font-family:"Dela Gothic One","Noto Sans TC",sans-serif;font-size:clamp(30px,
 const $=s=>document.querySelector(s);
 const LEVELS={high:{maxDim:1200,q:0.60,f:0.12},medium:{maxDim:1800,q:0.80,f:0.30},low:{maxDim:2400,q:0.90,f:0.55}};
 const I18N={
-en:{title:"Compress PDF",addfiles:"Add files",sub:"Content always preserved — text, images and layout stay exactly as they were. Processed locally, nothing is uploaded.",drop:"Drop PDF here or click to select",dropnote:"Drag anywhere on this page · Free: one file at a time · Batch is a Pro feature",lvlabel:"Select compression level:",cancel:"Cancel",compress:"Compress",proT:"OpenX Pro — Batch compress",proD:"Batch compress lets you drop many PDFs at once and compress them all. Enter your Pro key once — it unlocks Pro on every OpenX tool.",unlock:"Unlock",close:"Close",getkey:"Get a Pro key →",foot1:"PDF-MO · an OpenX tool · files are processed locally in your browser, nothing is uploaded.",foot2:"Compression concept inspired by pdfcpu — this tool is an independent browser implementation. Every mode preserves the original content; images it cannot safely recompress are left untouched.",lvlHigh:"High",lvlMed:"Medium",lvlLow:"Low",dHigh:"Smallest size, standard quality",dMed:"Medium size, better quality",dLow:"Larger size, highest quality",tagBest:"Best compression",est:"Estimated",analyzing:"Analyzing…",pages:"pages",images:"images",waiting:"Waiting",working:"Compressing…",done:"Done",error:"Failed",fallback:"Original kept — output did not pass verification",proOn:"Pro unlocked — batch enabled",proOff:"Batch compress is a Pro feature",unlockBtn:"Unlock Pro",encErr:"This PDF is encrypted or cannot be read"},
-zh:{title:"壓縮 PDF",addfiles:"加入檔案",sub:"內容一定保留 — 文字、圖片、排版原封不動。全程本地處理，唔會上傳。",drop:"拖 PDF 入嚟，或撳呢度選擇",dropnote:"成版都拖得 · 免費：一次一個檔案 · 批量處理係 Pro 功能",lvlabel:"選擇壓縮程度：",cancel:"取消",compress:"開始壓縮",proT:"OpenX Pro — 批量壓縮",proD:"批量壓縮可以一次拖入多個 PDF 全部壓晒。輸入一次 Pro key，成個 OpenX 系列工具都解鎖。",unlock:"解鎖",close:"關閉",getkey:"攞 Pro key →",foot1:"PDF-MO · OpenX 工具 · 檔案喺你瀏覽器本地處理，唔會上傳。",foot2:"壓縮概念參考 pdfcpu — 本工具為獨立嘅瀏覽器實現。所有模式都保留原有內容；唔能夠安全重壓嘅圖片會原樣保留。",lvlHigh:"高",lvlMed:"中",lvlLow:"低",dHigh:"檔案最細，畫質標準",dMed:"大細適中，畫質較好",dLow:"檔案較大，畫質最高",tagBest:"壓縮效果最好",est:"預估約",analyzing:"分析緊…",pages:"頁",images:"張圖片",waiting:"等緊",working:"壓縮緊…",done:"完成",error:"失敗",fallback:"已保留原檔 — 成品驗證未通過",proOn:"Pro 已解鎖 — 可以批量處理",proOff:"批量壓縮係 Pro 功能",unlockBtn:"解鎖 Pro",encErr:"此 PDF 已加密或無法讀取"}};
+en:{title:"Compress PDF",addfiles:"Add files",sub:"Content always preserved — text, images and layout stay exactly as they were. Processed locally, nothing is uploaded.",drop:"Drop PDF here or click to select",dropnote:"Drag anywhere on this page · Free: one file at a time · Batch is a Pro feature",lvlabel:"Select compression level:",cancel:"Cancel",compress:"Compress",proT:"OpenX Pro — Batch compress",proD:"Batch compress lets you drop many PDFs at once and compress them all. Enter your Pro key once — it unlocks Pro on every OpenX tool.",unlock:"Unlock",close:"Close",getkey:"Get a Pro key →",foot1:"PDF-MO · an OpenX tool · files are processed locally in your browser, nothing is uploaded.",foot2:"Compression concept inspired by pdfcpu — this tool is an independent browser implementation. Every mode preserves the original content; images it cannot safely recompress are left untouched.",lvlHigh:"High",lvlMed:"Medium",lvlLow:"Low",dHigh:"Smallest size, standard quality",dMed:"Medium size, better quality",dLow:"Larger size, highest quality",tagBest:"Best compression",est:"Estimated",analyzing:"Analyzing…",scanning:"Scanning images…",pages:"pages",images:"images",waiting:"Waiting",working:"Compressing…",done:"Done",error:"Failed",fallback:"Original kept — output did not pass verification",proOn:"Pro unlocked — batch enabled",proOff:"Batch compress is a Pro feature",unlockBtn:"Unlock Pro",encErr:"This PDF is encrypted or cannot be read"},
+zh:{title:"壓縮 PDF",addfiles:"加入檔案",sub:"內容一定保留 — 文字、圖片、排版原封不動。全程本地處理，唔會上傳。",drop:"拖 PDF 入嚟，或撳呢度選擇",dropnote:"成版都拖得 · 免費：一次一個檔案 · 批量處理係 Pro 功能",lvlabel:"選擇壓縮程度：",cancel:"取消",compress:"開始壓縮",proT:"OpenX Pro — 批量壓縮",proD:"批量壓縮可以一次拖入多個 PDF 全部壓晒。輸入一次 Pro key，成個 OpenX 系列工具都解鎖。",unlock:"解鎖",close:"關閉",getkey:"攞 Pro key →",foot1:"PDF-MO · OpenX 工具 · 檔案喺你瀏覽器本地處理，唔會上傳。",foot2:"壓縮概念參考 pdfcpu — 本工具為獨立嘅瀏覽器實現。所有模式都保留原有內容；唔能夠安全重壓嘅圖片會原樣保留。",lvlHigh:"高",lvlMed:"中",lvlLow:"低",dHigh:"檔案最細，畫質標準",dMed:"大細適中，畫質較好",dLow:"檔案較大，畫質最高",tagBest:"壓縮效果最好",est:"預估約",analyzing:"分析緊…",scanning:"掃描圖片中…",pages:"頁",images:"張圖片",waiting:"等緊",working:"壓縮緊…",done:"完成",error:"失敗",fallback:"已保留原檔 — 成品驗證未通過",proOn:"Pro 已解鎖 — 可以批量處理",proOff:"批量壓縮係 Pro 功能",unlockBtn:"解鎖 Pro",encErr:"此 PDF 已加密或無法讀取"}};
 let lang=localStorage.getItem('pdf-mo-lang')||'en';
 let level='high';
 let pro=localStorage.getItem('openx-pro-ok')==='1';
@@ -139,7 +139,7 @@ lgBtns.forEach(b=>b.onclick=()=>setLang(b.dataset.lg));
 setTheme(localStorage.getItem('pdf-mo-theme')||'silver');
 function renderNote(){const n=$('#proNote');n.innerHTML=pro?I18N[lang].proOn:I18N[lang].proOff+' · <button id="openPro">'+I18N[lang].unlockBtn+'</button>';
 const b=$('#openPro');if(b)b.onclick=()=>$('#proModal').classList.add('show');}
-function estFor(q,lv){if(!q.analyzed)return '—';const other=q.orig-q.imgBytes;return fmt(Math.round(other*0.98+q.imgBytes*LEVELS[lv].f));}
+function estFor(q,lv){if(!q.analyzed||q.estSkipped)return '—';const other=q.orig-q.imgBytes;return fmt(Math.round(other*0.98+q.imgBytes*LEVELS[lv].f));}
 function renderLevels(){$('#levels').innerHTML=['high','medium','low'].map(lv=>{const L=I18N[lang];const nm=lv==='high'?L.lvlHigh:lv==='medium'?L.lvlMed:L.lvlLow;const d=lv==='high'?L.dHigh:lv==='medium'?L.dMed:L.dLow;
 return '<button class="lv'+(level===lv?' sel':'')+'" data-lv="'+lv+'">'+(lv==='high'?'<span class="tag">'+L.tagBest+'</span>':'')+'<span class="dot"></span><b>'+nm+'</b><p>'+d+'</p><div class="est">'+L.est+' '+(queue[0]?estFor(queue[0],lv):'—')+'</div></button>';}).join('');
 document.querySelectorAll('#levels .lv').forEach(b=>b.onclick=()=>{level=b.dataset.lv;renderLevels();});}
@@ -154,19 +154,33 @@ else st=I18N[lang].waiting;
 return '<div class="qrow"><div class="nm">'+esc(q.file.name)+'</div><div class="meta">'+st+'</div>'+(q.status==='done'?'<button class="dl" onclick="dl('+i+')">↓ '+I18N[lang].done+'</button>':'')+'<div class="bar"><i style="width:'+(q.pct||0)+'%"></i></div></div>';}).join('');}
 window.dl=i=>{const q=queue[i];if(!q.url)return;const a=document.createElement('a');a.href=q.url;a.download=q.fallback?q.file.name:q.file.name.replace(/\.pdf$/i,'')+'-compressed.pdf';a.click();};
 function pdfjs(){if(window['pdfjsLib']){pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';}return pdfjsLib;}
-async function analyze(q){try{$('#ana').textContent=I18N[lang].analyzing;
+function frame(){return new Promise(r=>setTimeout(r,0));}
+async function analyze(q){
+const t0=Date.now();
+try{$('#ana').textContent=I18N[lang].analyzing;
 const bytes=new Uint8Array(await q.file.arrayBuffer());
+await frame();
 const src=await pdfjs().getDocument({data:bytes}).promise;q.pages=src.numPages;
+if(q.file.size<=25*1048576){
 const pg=await src.getPage(1);const vp=pg.getViewport({scale:120/Math.max(pg.getViewport({scale:1}).width,1)});
 const cv=document.createElement('canvas');cv.width=Math.floor(vp.width);cv.height=Math.floor(vp.height);
-await pg.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;q.thumb=cv.toDataURL('image/jpeg',0.7);
-const doc=await PDFLib.PDFDocument.load(bytes);let imgBytes=0,imgCount=0;
-for(const [,obj] of doc.context.enumerateIndirectObjects()){if(!(obj instanceof PDFLib.PDFRawStream))continue;
+await pg.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;q.thumb=cv.toDataURL('image/jpeg',0.7);}
+await frame();
+$('#ana').textContent=I18N[lang].scanning;
+const doc=await PDFLib.PDFDocument.load(bytes);let imgBytes=0,imgCount=0,done=0;
+const objs=doc.context.enumerateIndirectObjects();
+for(const [,obj] of objs){done++;
+if(done%500===0){if(Date.now()-t0>30000)throw new Error('timeout');await frame();}
+if(!(obj instanceof PDFLib.PDFRawStream))continue;
 const sub=obj.dict.lookup(PDFLib.PDFName.of('Subtype'));
 if(sub&&sub.toString()==='/Image'){imgCount++;imgBytes+=obj.getContents().length;}}
 q.imgBytes=imgBytes;q.imgCount=imgCount;q.analyzed=true;q.bytes=bytes;
 $('#ana').textContent='';renderFileCard();renderLevels();}
-catch(e){q.err=I18N[lang].encErr;q.status='error';renderQueue();}}
+catch(e){
+if(e.message==='timeout'){q.analyzed=true;q.imgBytes=0;q.imgCount=0;q.estSkipped=true;
+$('#ana').textContent=lang==='zh'?'分析逾時，已跳過預估，可直接按壓縮。':'Analysis timed out — estimates skipped, you can still compress directly.';
+renderLevels();}
+else{q.err=I18N[lang].encErr;q.status='error';renderQueue();}}}
 async function addFiles(list){let arr=[...list].filter(f=>/\.pdf$/i.test(f.name));if(!arr.length)return;
 if(!pro&&arr.length>1){arr=arr.slice(0,1);$('#proModal').classList.add('show');}
 queue=queue.concat(arr.map(f=>({file:f,status:'waiting',orig:f.size,pct:0,analyzed:false})));
