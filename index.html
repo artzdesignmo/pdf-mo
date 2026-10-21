@@ -140,7 +140,7 @@ lgBtns.forEach(b=>b.onclick=()=>setLang(b.dataset.lg));
 setTheme(localStorage.getItem('pdf-mo-theme')||'silver');
 function renderNote(){const n=$('#proNote');n.innerHTML=pro?I18N[lang].proOn:I18N[lang].proOff+' · <button id="openPro">'+I18N[lang].unlockBtn+'</button>';
 const b=$('#openPro');if(b)b.onclick=()=>$('#proModal').classList.add('show');}
-function estFor(q,lv){if(!q.analyzed||q.estSkipped)return '—';const other=q.orig-q.imgBytes;return fmt(Math.round(other*0.98+q.imgBytes*LEVELS[lv].f));}
+function estFor(q,lv){if(!q.analyzed||q.estSkipped)return '—';const other=q.orig-q.imgBytes;const elig=q.eligibleBytes!=null?q.eligibleBytes:q.imgBytes;return fmt(Math.round(other*0.98+elig*LEVELS[lv].f+(q.imgBytes-elig)));}
 function renderLevels(){$('#levels').innerHTML=['high','medium','low'].map(lv=>{const L=I18N[lang];const nm=lv==='high'?L.lvlHigh:lv==='medium'?L.lvlMed:L.lvlLow;const d=lv==='high'?L.dHigh:lv==='medium'?L.dMed:L.dLow;
 return '<button class="lv'+(level===lv?' sel':'')+'" data-lv="'+lv+'">'+(lv==='high'?'<span class="tag">'+L.tagBest+'</span>':'')+'<span class="dot"></span><b>'+nm+'</b><p>'+d+'</p><div class="est">'+L.est+' '+(queue[0]?estFor(queue[0],lv):'—')+'</div></button>';}).join('');
 document.querySelectorAll('#levels .lv').forEach(b=>b.onclick=()=>{level=b.dataset.lv;renderLevels();});}
@@ -151,21 +151,21 @@ function stageText(q){const L=I18N[lang];if(q.status!=='working')return '';
 let t=q.stage||'';if(q.elapsed!=null)t+=' · '+L.elapsed+' '+q.elapsed+L.sec;
 if(q.remaining!=null)t+=' · '+L.remaining+' '+q.remaining+L.sec;return t;}
 function renderQueue(){$('#queue').innerHTML=queue.map((q,i)=>{let st,cls='';
-if(q.status==='done'){st=I18N[lang].done+' · '+fmt(q.orig)+' → '+fmt(q.new)+' <span class="save">'+q.save+'%</span>';if(q.fallback){st+=' <span class="warn">· '+I18N[lang].fallback+'</span>';}}
+if(q.status==='done'){st=I18N[lang].done+' · '+fmt(q.orig)+' → '+fmt(q.new)+' <span class="save">'+q.save+'%</span>';if(q.fallback){st+=' <span class="warn">· '+I18N[lang].fallback+'</span>';}if(q.breakdown){st+='<br>'+q.breakdown;}}
 else if(q.status==='working')st=stageText(q);
 else if(q.status==='error')st=I18N[lang].error+': '+q.err;
 else if(q.status==='cancelled')st=I18N[lang].cancelled;
 else st=I18N[lang].waiting;
 return '<div class="qrow"><div class="nm">'+esc(q.file.name)+'</div><div class="meta">'+st+'</div>'+(q.status==='done'?'<button class="dl" onclick="dl('+i+')">↓ '+I18N[lang].done+'</button>':'')+'<div class="bar"><i style="width:'+(q.pct||0)+'%"></i></div></div>';}).join('');}
 window.dl=i=>{const q=queue[i];if(!q.url)return;const a=document.createElement('a');a.href=q.url;a.download=q.fallback?q.file.name:q.file.name.replace(/\.pdf$/i,'')+'-compressed.pdf';a.click();};
-const WORKER_SRC="importScripts('https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js');self.onmessage=async e=>{try{const bytes=new Uint8Array(await e.data.file.arrayBuffer());const doc=await PDFLib.PDFDocument.load(bytes);let imgBytes=0,imgCount=0;for(const[,obj]of doc.context.enumerateIndirectObjects()){if(!(obj instanceof PDFLib.PDFRawStream))continue;const sub=obj.dict.lookup(PDFLib.PDFName.of('Subtype'));if(sub&&sub.toString()==='/Image'){imgCount++;imgBytes+=obj.getContents().length;}}self.postMessage({ok:true,pages:doc.getPageCount(),imgBytes,imgCount});}catch(err){self.postMessage({ok:false,error:String(err)});}};";
+const WORKER_SRC="importScripts('https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js');self.onmessage=async e=>{try{const bytes=new Uint8Array(await e.data.file.arrayBuffer());const doc=await PDFLib.PDFDocument.load(bytes);const P=PDFLib;const maskRefs=new Set();for(const[,obj]of doc.context.enumerateIndirectObjects()){if(!(obj instanceof P.PDFRawStream))continue;try{const d=obj.dict;const sm=d.get(P.PDFName.of('SMask'));if(sm&&sm instanceof P.PDFRef)maskRefs.add(sm.toString());const mk=d.get(P.PDFName.of('Mask'));if(mk&&mk instanceof P.PDFRef)maskRefs.add(mk.toString());}catch(err){}}let imgBytes=0,eligibleBytes=0,imgCount=0;for(const[ref,obj]of doc.context.enumerateIndirectObjects()){if(!(obj instanceof P.PDFRawStream))continue;const sub=obj.dict.lookup(P.PDFName.of('Subtype'));if(!sub||sub.toString()!=='/Image')continue;imgCount++;const len=obj.getContents().length;imgBytes+=len;try{if(maskRefs.has(ref.toString()))continue;const d=obj.dict;if(d.lookup(P.PDFName.of('Mask')))continue;if(d.lookup(P.PDFName.of('ImageMask')))continue;const f=d.lookup(P.PDFName.of('Filter'));let fn=null;if(f instanceof P.PDFName)fn=f.toString();else if(f&&typeof f.asArray==='function'){const a=f.asArray();if(a.length&&a[0] instanceof P.PDFName)fn=a[0].toString();}if(fn!=='/DCTDecode'&&fn!=='/FlateDecode')continue;const cs=d.lookup(P.PDFName.of('ColorSpace'));let csOk=false;if(cs instanceof P.PDFName)csOk=cs.toString()==='/DeviceRGB'||cs.toString()==='/DeviceGray';else if(cs&&typeof cs.asArray==='function'){const a=cs.asArray();if(a.length&&a[0] instanceof P.PDFName){const t=a[0].toString();csOk=t==='/ICCBased'||t==='/CalRGB';}}if(!csOk)continue;const bpc=d.lookup(P.PDFName.of('BitsPerComponent'));if(!bpc||bpc.asNumber()!==8)continue;const W=d.lookup(P.PDFName.of('Width')).asNumber(),H=d.lookup(P.PDFName.of('Height')).asNumber();if(!W||!H)continue;if(fn==='/DCTDecode'){const raw=obj.getContents();if(raw.length<2||raw[0]!==0xFF||raw[1]!==0xD8)continue;}eligibleBytes+=len;}catch(err){}}self.postMessage({ok:true,pages:doc.getPageCount(),imgBytes,eligibleBytes,imgCount});}catch(err){self.postMessage({ok:false,error:String(err)});}};";
 function stopEstimator(){if(estWorker){estWorker.terminate();estWorker=null;}if(estTimer){clearTimeout(estTimer);estTimer=null;}}
 function startEstimator(q){stopEstimator();
 try{estWorker=new Worker(URL.createObjectURL(new Blob([WORKER_SRC],{type:'text/javascript'})));
 $('#ana').textContent=I18N[lang].estimating;
 estTimer=setTimeout(()=>{q.estSkipped=true;$('#ana').textContent=I18N[lang].estFail;renderLevels();stopEstimator();},25000);
 estWorker.onmessage=e=>{stopEstimator();const d=e.data;
-if(d.ok&&queue[0]===q){q.pages=d.pages;q.imgBytes=d.imgBytes;q.imgCount=d.imgCount;q.analyzed=true;$('#ana').textContent='';renderFileCard();renderLevels();}
+if(d.ok&&queue[0]===q){q.pages=d.pages;q.imgBytes=d.imgBytes;q.eligibleBytes=d.eligibleBytes;q.imgCount=d.imgCount;q.analyzed=true;$('#ana').textContent='';renderFileCard();renderLevels();}
 else if(queue[0]===q){q.estSkipped=true;$('#ana').textContent=I18N[lang].estFail;renderLevels();}};
 estWorker.onerror=()=>{stopEstimator();if(queue[0]===q){q.estSkipped=true;$('#ana').textContent=I18N[lang].estFail;renderLevels();}};
 estWorker.postMessage({file:q.file});}
@@ -178,37 +178,104 @@ renderFileCard();renderQueue();renderLevels();$('#goBtn').disabled=false;
 if(queue.length===1)startEstimator(queue[0]);}
 async function decodeJpeg(raw){try{return await createImageBitmap(new Blob([raw],{type:'image/jpeg'}));}
 catch(e){return await new Promise((res,rej)=>{const img=new Image();img.onload=()=>res(img);img.onerror=rej;img.src=URL.createObjectURL(new Blob([raw],{type:'image/jpeg'}));});}}
-function eligibleImage(d){const P=PDFLib;
+function classifyImage(d){
+const P=PDFLib;
 const sub=d.lookup(P.PDFName.of('Subtype'));if(!sub||sub.toString()!=='/Image')return null;
-if(d.lookup(P.PDFName.of('Mask')))return null;
-const filt=d.lookup(P.PDFName.of('Filter'));let fName=null;
-if(filt instanceof P.PDFName)fName=filt.toString();
-else if(filt&&typeof filt.asArray==='function'){const a=filt.asArray();if(a.length&&a[0] instanceof P.PDFName)fName=a[0].toString();}
-if(fName!=='/DCTDecode')return null;
-const cs=d.lookup(P.PDFName.of('ColorSpace'));if(!(cs instanceof P.PDFName))return null;
-if(cs.toString()!=='/DeviceRGB'&&cs.toString()!=='/DeviceGray')return null;
-const bpc=d.lookup(P.PDFName.of('BitsPerComponent'));if(!bpc||bpc.asNumber()!==8)return null;
-const W=d.lookup(P.PDFName.of('Width')).asNumber(),H=d.lookup(P.PDFName.of('Height')).asNumber();
-if(!W||!H||W*H>16000000)return null;
-return {W,H};}
-async function compressPdf(bytes,cfg,onPhase,onImage){const doc=await PDFLib.PDFDocument.load(bytes);
+if(d.lookup(P.PDFName.of('Mask')))return {ok:false,reason:'masked'};
+if(d.lookup(P.PDFName.of('ImageMask')))return {ok:false,reason:'masked'};
+const filt=d.lookup(P.PDFName.of('Filter'));let fn=null;
+if(filt instanceof P.PDFName)fn=filt.toString();
+else if(filt&&typeof filt.asArray==='function'){const a=filt.asArray();if(a.length&&a[0] instanceof P.PDFName)fn=a[0].toString();}
+if(fn!=='/DCTDecode'&&fn!=='/FlateDecode')return {ok:false,reason:'filter'};
+const cs=d.lookup(P.PDFName.of('ColorSpace'));let csKind='other';
+if(cs instanceof P.PDFName){if(cs.toString()==='/DeviceRGB')csKind='rgb';else if(cs.toString()==='/DeviceGray')csKind='gray';}
+else if(cs&&typeof cs.asArray==='function'){const a=cs.asArray();if(a.length&&a[0] instanceof P.PDFName){const t=a[0].toString();if(t==='/ICCBased')csKind='icc';else if(t==='/CalRGB')csKind='cal';}}
+if(csKind==='other')return {ok:false,reason:'colorspace'};
+const bpc=d.lookup(P.PDFName.of('BitsPerComponent'));if(!bpc||bpc.asNumber()!==8)return {ok:false,reason:'bpc'};
+let W,H;try{W=d.lookup(P.PDFName.of('Width')).asNumber();H=d.lookup(P.PDFName.of('Height')).asNumber();}catch(e){return {ok:false,reason:'error'};}
+if(!W||!H)return {ok:false,reason:'error'};
+let colors=null;try{const co=d.lookup(P.PDFName.of('Colors'));if(co)colors=co.asNumber();}catch(e){}
+if(colors==null)colors=(csKind==='rgb'||csKind==='icc'||csKind==='cal')?3:1;
+if(fn==='/FlateDecode'&&(colors!==1&&colors!==3))return {ok:false,reason:'colorspace'};
+let parms=null;try{const dp=d.lookup(P.PDFName.of('DecodeParms'));if(dp){if(dp&&typeof dp.asArray==='function'){const a=dp.asArray();parms=a.length?a[0]:null;}else parms=dp;}}catch(e){}
+return {ok:true,kind:fn==='/DCTDecode'?'dct':'flate',W,H,colors,parms};}
+function numParm(parms,name,def){try{const v=parms?parms.lookup(PDFLib.PDFName.of(name)):null;return v?v.asNumber():def;}catch(e){return def;}}
+async function inflateZlib(raw){
+const blob=new Blob([raw]);
+for(const fmt of ['deflate','deflate-raw']){
+try{const ds=new DecompressionStream(fmt);const buf=await new Response(blob.stream().pipeThrough(ds)).arrayBuffer();return new Uint8Array(buf);}catch(e){}}
+throw new Error('inflate failed');}
+function unfilterFlate(data,W,H,colors,predictor){
+const rowLen=W*colors;
+if(!predictor||predictor===1){if(data.length<H*rowLen)throw new Error('short flate');return data.slice(0,H*rowLen);}
+if(predictor===2){
+const out=new Uint8Array(data.slice(0,H*rowLen));const bpp=colors;
+for(let y=0;y<H;y++)for(let x=bpp;x<rowLen;x++){const i=y*rowLen+x;out[i]=(out[i]+out[i-bpp])&0xFF;}
+return out;}
+const stride=rowLen+1;if(data.length<H*stride)throw new Error('short flate');
+const out=new Uint8Array(H*rowLen);const bpp=colors;
+for(let y=0;y<H;y++){
+const f=data[y*stride];const row=data.subarray(y*stride+1,(y+1)*stride);
+const prev=y>0?out.subarray((y-1)*rowLen,y*rowLen):null;
+const cur=out.subarray(y*rowLen,(y+1)*rowLen);
+for(let x=0;x<rowLen;x++){
+const a=x>=bpp?cur[x-bpp]:0;const b=prev?prev[x]:0;const c=(prev&&x>=bpp)?prev[x-bpp]:0;
+let v=row[x];
+if(f===1)v=(v+a)&0xFF;
+else if(f===2)v=(v+b)&0xFF;
+else if(f===3)v=(v+((a+b)>>1))&0xFF;
+else if(f===4){const p=a+b-c;const pa=Math.abs(p-a),pb=Math.abs(p-b),pc=Math.abs(p-c);const pr=(pa<=pb&&pa<=pc)?a:(pb<=pc?b:c);v=(v+pr)&0xFF;}
+cur[x]=v;}}
+return out;}
+function pixelsToCanvas(pixels,W,H,colors,nw,nh){
+const tmp=document.createElement('canvas');tmp.width=W;tmp.height=H;
+const tc=tmp.getContext('2d');const img=tc.createImageData(W,H);
+if(colors===1){for(let i=0;i<W*H;i++){const v=pixels[i];img.data[i*4]=v;img.data[i*4+1]=v;img.data[i*4+2]=v;img.data[i*4+3]=255;}}
+else{for(let i=0;i<W*H;i++){img.data[i*4]=pixels[i*3];img.data[i*4+1]=pixels[i*3+1];img.data[i*4+2]=pixels[i*3+2];img.data[i*4+3]=255;}}
+tc.putImageData(img,0,0);
+const cv=document.createElement('canvas');cv.width=nw;cv.height=nh;
+cv.getContext('2d').drawImage(tmp,0,0,nw,nh);
+return cv;}
+let lastStats=null;
+async function compressPdf(bytes,cfg,onPhase,onImage){
+const doc=await PDFLib.PDFDocument.load(bytes);
 const ctx=doc.context;const P=PDFLib;const jobs=[];
+const stats={done:0,skipped:{},skippedTotal:0};
+function skip(r){stats.skipped[r]=(stats.skipped[r]||0)+1;stats.skippedTotal++;}
+const maskRefs=new Set();
+for(const [,obj] of ctx.enumerateIndirectObjects()){
+if(!(obj instanceof P.PDFRawStream))continue;
+try{const d=obj.dict;const sm=d.get(P.PDFName.of('SMask'));if(sm&&sm instanceof P.PDFRef)maskRefs.add(sm.toString());
+const mk=d.get(P.PDFName.of('Mask'));if(mk&&mk instanceof P.PDFRef)maskRefs.add(mk.toString());}catch(e){}}
 for(const [ref,obj] of ctx.enumerateIndirectObjects()){
 if(!(obj instanceof P.PDFRawStream))continue;
-try{const d=obj.dict;const wh=eligibleImage(d);if(!wh)continue;
-const raw=obj.getContents();if(raw.length<2||raw[0]!==0xFF||raw[1]!==0xD8)continue;
-jobs.push({ref,d,raw,W:wh.W,H:wh.H});}catch(e){/* leave untouched */}}
+try{const d=obj.dict;const c=classifyImage(d);if(!c)continue;
+if(maskRefs.has(ref.toString())){skip('masked');continue;}
+if(!c.ok){skip(c.reason);continue;}
+const raw=obj.getContents();
+if(c.kind==='dct'&&(raw.length<2||raw[0]!==0xFF||raw[1]!==0xD8)){skip('decode');continue;}
+jobs.push({ref,d,raw,W:c.W,H:c.H,colors:c.colors,kind:c.kind,parms:c.parms});}catch(e){skip('error');}}
 onPhase('images',jobs.length);
 let done=0;
 for(const job of jobs){
 if(cancelFlag)throw new Error('__cancelled__');
-try{const bmp=await decodeJpeg(job.raw);
+try{
 const scale=Math.min(1,cfg.maxDim/Math.max(job.W,job.H));
 const nw=Math.max(1,Math.round(job.W*scale)),nh=Math.max(1,Math.round(job.H*scale));
-const cv=document.createElement('canvas');cv.width=nw;cv.height=nh;
-cv.getContext('2d').drawImage(bmp,0,0,nw,nh);
-const blob=await new Promise(r=>cv.toBlob(r,'image/jpeg',cfg.q));if(!blob){done++;onImage(done);continue;}
-const nb=new Uint8Array(await blob.arrayBuffer());if(nb.length>=job.raw.length){done++;onImage(done);continue;}
+let cv=null;
+if(job.kind==='dct'){
+if(job.W*job.H>16000000){
+try{const bmp=await createImageBitmap(new Blob([job.raw],{type:'image/jpeg'}),{resizeWidth:nw,resizeHeight:nh});
+cv=document.createElement('canvas');cv.width=nw;cv.height=nh;cv.getContext('2d').drawImage(bmp,0,0,nw,nh);}
+catch(e){skip('oversize');done++;onImage(done);await new Promise(r=>setTimeout(r,0));continue;}}
+else{const bmp=await decodeJpeg(job.raw);cv=document.createElement('canvas');cv.width=nw;cv.height=nh;cv.getContext('2d').drawImage(bmp,0,0,nw,nh);}}
+else{
+const inflated=await inflateZlib(job.raw);
+const predictor=numParm(job.parms,'Predictor',1);
+const pixels=unfilterFlate(inflated,job.W,job.H,job.colors,predictor);
+cv=pixelsToCanvas(pixels,job.W,job.H,job.colors,nw,nh);}
+const blob=await new Promise(r=>cv.toBlob(r,'image/jpeg',cfg.q));if(!blob){skip('decode');done++;onImage(done);await new Promise(r=>setTimeout(r,0));continue;}
+const nb=new Uint8Array(await blob.arrayBuffer());if(nb.length>=job.raw.length){skip('nobenefit');done++;onImage(done);await new Promise(r=>setTimeout(r,0));continue;}
 const nd=P.PDFDict.withContext(ctx);
 nd.set(P.PDFName.of('Type'),P.PDFName.of('XObject'));
 nd.set(P.PDFName.of('Subtype'),P.PDFName.of('Image'));
@@ -217,14 +284,23 @@ nd.set(P.PDFName.of('Height'),P.PDFNumber.of(nh));
 nd.set(P.PDFName.of('ColorSpace'),P.PDFName.of('DeviceRGB'));
 nd.set(P.PDFName.of('BitsPerComponent'),P.PDFNumber.of(8));
 nd.set(P.PDFName.of('Filter'),P.PDFName.of('DCTDecode'));
-const sm=job.d.lookup(P.PDFName.of('SMask'));if(sm)nd.set(P.PDFName.of('SMask'),sm);
-ctx.assign(job.ref,P.PDFRawStream.of(nd,nb));}
-catch(e){if(e.message==='__cancelled__')throw e;/* leave this image untouched */}
+const sm=job.d.get(P.PDFName.of('SMask'));if(sm)nd.set(P.PDFName.of('SMask'),sm);
+ctx.assign(job.ref,P.PDFRawStream.of(nd,nb));stats.done++;}
+catch(e){if(e.message==='__cancelled__')throw e;skip('error');}
 done++;onImage(done);
 await new Promise(r=>setTimeout(r,0));}
 onPhase('save');
 doc.setTitle('');doc.setAuthor('');doc.setSubject('');doc.setKeywords([]);doc.setProducer('');doc.setCreator('');
+lastStats=stats;
 return await doc.save({useObjectStreams:true});}
+function buildBreakdown(st){
+if(!st)return '';
+const zh=lang==='zh';
+const R=zh?{filter:'非 JPEG/Flate 編碼',colorspace:'色彩空間不支援',masked:'有遮罩',oversize:'圖片過大',bpc:'色深不支援',decode:'解碼失敗',nobenefit:'重壓後更大',error:'其他錯誤'}:{filter:'not JPEG/Flate',colorspace:'unsupported colorspace',masked:'masked',oversize:'too large',bpc:'unsupported bit depth',decode:'decode failed',nobenefit:'larger after recompress',error:'other error'};
+let parts=[];for(const k in st.skipped)if(st.skipped[k])parts.push((R[k]||k)+' '+st.skipped[k]+(zh?' 張':''));
+let s=(zh?'壓咗 ':'Compressed ')+st.done+(zh?' 張':'');
+if(st.skippedTotal)s+=(zh?'，跳過 ':'，skipped ')+st.skippedTotal+(zh?' 張（':' (')+parts.join(' · ')+(zh?'）':'');
+return s;}
 $('#goBtn').onclick=async()=>{stopEstimator();cancelFlag=false;$('#goBtn').disabled=true;
 const jobs=[...queue];
 for(let i=0;i<jobs.length;i++){const q=jobs[i];if(q.status==='done'||q.status==='error')continue;
@@ -242,6 +318,7 @@ else if(phase==='save'){q.stage=I18N[lang].saving;q.pct=96;renderQueue();}},
 done=>{imgDone=done;q.stage=I18N[lang].recompressing+' '+done+'/'+imgTotal;
 q.pct=imgTotal>0?Math.round(5+90*done/imgTotal):90;renderQueue();});
 if(cancelFlag)throw new Error('__cancelled__');
+q.breakdown=buildBreakdown(lastStats);
 q.stage=I18N[lang].verifying;q.pct=99;renderQueue();
 let ok=false;try{const chk=await PDFLib.PDFDocument.load(out);ok=chk.getPageCount()===inPages;}catch(e){ok=false;}
 if(!ok){q.fallback=true;q.new=q.orig;q.save=0;q.blob=new Blob([q.bytes],{type:'application/pdf'});}
