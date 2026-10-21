@@ -2,19 +2,19 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>PDF-MO — Compress PDFs in your browser</title>
-<meta name="description" content="PDF-MO: compress PDFs entirely in your browser. Files never leave your device.">
+<meta name="description" content="PDF-MO: compress PDFs entirely in your browser. Original content always preserved. Files never leave your device.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
 *{box-sizing:border-box}html,body{margin:0}
-body{--bg:#e6e6e6;--card:#fff;--ink:#1a1a1a;--mut:rgba(0,0,0,.55);--line:rgba(0,0,0,.12);--line2:rgba(0,0,0,.16);--hover:rgba(0,0,0,.03);--accent:#8a867e;--ok:#2e7d4f;
-background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",system-ui,sans-serif;transition:background .25s,color .25s}
+body{--bg:#e6e6e6;--card:#fff;--ink:#1a1a1a;--mut:rgba(0,0,0,.55);--line:rgba(0,0,0,.12);--line2:rgba(0,0,0,.16);--hover:rgba(0,0,0,.03);--accent:#8a867e;--ok:#2e7d4f;--warn:#b7791f;
+background:var(--bg);color:var(--ink);font-family:"Noto Sans TC",system-ui,sans-serif;min-height:100dvh;display:flex;flex-direction:column;transition:background .25s,color .25s}
 body[data-theme="white"]{--bg:#ffffff;--card:#fbfbfb}
 body[data-theme="black"]{--bg:#0e0e12;--card:#17171c;--ink:#f5f5f5;--mut:rgba(255,255,255,.55);--line:rgba(255,255,255,.14);--line2:rgba(255,255,255,.2);--hover:rgba(255,255,255,.05);--ok:#6fbf8f}
-.wrap{max-width:980px;margin:0 auto;padding:26px 22px 60px}
-.top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+body.dragging{outline:3px dashed var(--accent);outline-offset:-12px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 28px;border-bottom:1px solid var(--line)}
 .logo{display:flex;align-items:center;gap:10px;font-family:"Dela Gothic One","Noto Sans TC",sans-serif;font-size:22px;letter-spacing:.02em}
 .logo svg{width:30px;height:30px;stroke:var(--accent);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .ctrls{display:flex;gap:8px;align-items:center}
@@ -23,40 +23,46 @@ body[data-theme="black"]{--bg:#0e0e12;--card:#17171c;--ink:#f5f5f5;--mut:rgba(25
 .cbtn .sw{width:16px;height:16px;border-radius:50%;display:block;border:1px solid rgba(128,128,128,.55)}
 .cbtn.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .cbtn svg{width:20px;height:20px;stroke:var(--accent);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.hero{text-align:center;margin:44px 0 8px}
-.hero h1{font-family:"Dela Gothic One","Noto Sans TC",sans-serif;font-size:clamp(46px,9vw,96px);line-height:1.02;margin:0;letter-spacing:.01em}
-.hero h1 span{color:var(--accent)}
-.hero p{color:var(--mut);font-size:16px;margin:14px 0 0}
-.priv{display:flex;justify-content:center;margin:26px 0 30px}
-.priv span{border:1px solid var(--line2);border-radius:99px;padding:7px 16px;font-size:13px;color:var(--mut)}
-.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px}
-.drop{border:2px dashed var(--line2);border-radius:16px;padding:38px 18px;text-align:center;cursor:pointer;transition:.2s}
-.drop:hover,.drop.over{border-color:var(--accent);background:var(--hover)}
+.main{flex:1;width:100%;max-width:1100px;margin:0 auto;padding:30px 28px 50px}
+h1{font-family:"Dela Gothic One","Noto Sans TC",sans-serif;font-size:clamp(30px,4.5vw,44px);margin:0 0 4px}
+.sub{color:var(--mut);font-size:14px;margin:0 0 26px}
+.head-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.addfiles{color:var(--ink);text-decoration:underline;text-underline-offset:4px;cursor:pointer;font-size:14px;background:none;border:0;font-family:inherit}
+.drop{border:2px dashed var(--line2);border-radius:18px;padding:52px 20px;text-align:center;cursor:pointer;background:var(--card)}
+.drop:hover{border-color:var(--accent)}
 .drop .big{font-family:"Dela Gothic One","Noto Sans TC",sans-serif;font-size:20px}
 .drop .small{color:var(--mut);font-size:13px;margin-top:8px}
 .drop input{display:none}
-.modes{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
-.mode{border:1px solid var(--line2);border-radius:14px;padding:16px;cursor:pointer}
-.mode.sel{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
-.mode b{display:block;font-size:15px}
-.mode p{color:var(--mut);font-size:12.5px;line-height:1.6;margin:6px 0 0}
-.mode .tag{display:inline-block;font-size:11px;border:1px solid var(--line2);border-radius:99px;padding:2px 8px;margin-top:8px;color:var(--mut)}
-.settings{display:none;gap:14px;flex-wrap:wrap;margin-top:16px;align-items:center}
-.settings.show{display:flex}
-.settings label{font-size:13px;color:var(--mut)}
-.settings select,.settings input[type=range]{accent-color:var(--ink)}
-.settings select{background:var(--card);color:var(--ink);border:1px solid var(--line2);border-radius:8px;padding:6px 8px;font-family:inherit}
-.go{width:100%;margin-top:20px;padding:15px;border:0;border-radius:99px;background:var(--ink);color:var(--bg);font-family:"Dela Gothic One","Noto Sans TC",sans-serif;font-size:16px;cursor:pointer}
-.go:disabled{opacity:.4;cursor:default}
-.queue{margin-top:22px;display:grid;gap:12px}
+.filecard{display:flex;gap:16px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-top:18px}
+.filecard img{width:56px;height:74px;object-fit:cover;border:1px solid var(--line);border-radius:6px;background:#fff}
+.filecard .nm{font-weight:700;word-break:break-all;flex:1}
+.filecard .meta{color:var(--mut);font-size:12.5px;margin-top:2px}
+.filecard .x{background:none;border:0;font-size:22px;cursor:pointer;color:var(--ink);line-height:1}
+.ana{font-size:13px;color:var(--mut);margin-top:10px;min-height:18px}
+.lvlabel{font-size:15px;margin:26px 0 12px}
+.levels{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.lv{position:relative;background:var(--card);border:1px solid var(--line2);border-radius:14px;padding:18px;cursor:pointer;text-align:left;font-family:inherit;color:var(--ink)}
+.lv.sel{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.lv .tag{position:absolute;top:-11px;right:12px;background:#f5c518;color:#1a1a1a;font-size:11px;font-weight:700;border-radius:99px;padding:3px 9px}
+.lv .dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--line2);display:inline-block;vertical-align:-3px;margin-right:8px}
+.lv.sel .dot{border-color:var(--ink);background:var(--ink);box-shadow:inset 0 0 0 3px var(--card)}
+.lv b{font-size:17px}
+.lv p{color:var(--mut);font-size:13px;line-height:1.6;margin:8px 0 0}
+.lv .est{color:var(--mut);font-size:13px;margin-top:10px}
+.actions{display:flex;justify-content:flex-end;gap:12px;margin-top:26px}
+.btn{padding:13px 30px;border-radius:99px;font-family:inherit;font-size:15px;cursor:pointer}
+.btn.outline{background:transparent;color:var(--ink);border:1.5px solid var(--ink)}
+.btn.solid{background:var(--ink);color:var(--bg);border:0}
+.btn:disabled{opacity:.35;cursor:default}
+.queue{margin-top:24px;display:grid;gap:12px}
 .qrow{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
 .qrow .nm{font-weight:700;flex:1;min-width:180px;word-break:break-all}
 .qrow .meta{font-size:12.5px;color:var(--mut)}
 .qrow .save{font-weight:700;color:var(--ok)}
+.qrow .warn{font-weight:700;color:var(--warn)}
 .qrow .bar{flex-basis:100%;height:5px;background:var(--line);border-radius:3px;overflow:hidden}
 .qrow .bar i{display:block;height:100%;background:var(--ink);width:0%}
 .dl{border:1px solid var(--line2);background:transparent;color:var(--ink);border-radius:99px;padding:6px 14px;cursor:pointer;font-family:inherit;font-size:13px}
-.dl:disabled{opacity:.4}
 .pro-note{font-size:12.5px;color:var(--mut);text-align:center;margin-top:14px}
 .pro-note button{background:none;border:0;color:var(--ink);text-decoration:underline;cursor:pointer;font-family:inherit;font-size:12.5px}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;padding:20px;z-index:9}
@@ -72,12 +78,12 @@ body[data-theme="black"]{--bg:#0e0e12;--card:#17171c;--ink:#f5f5f5;--mut:rgba(25
 .box .msg{font-size:13px;margin-top:10px;min-height:18px}
 .box .msg.err{color:#c0392b}
 .box .msg.ok{color:var(--ok)}
-.foot{margin-top:34px;text-align:center;color:var(--mut);font-size:12px;line-height:1.8}
+.foot{margin-top:36px;text-align:center;color:var(--mut);font-size:12px;line-height:1.8}
 .foot a{color:var(--ink)}
-@media(max-width:640px){.modes{grid-template-columns:1fr}.hero{margin-top:26px}}
+@media(max-width:640px){.levels{grid-template-columns:1fr}.main{padding:20px 16px 40px}.topbar{padding:12px 16px}}
 </style></head>
-<body data-theme="silver"><div class="wrap">
-<div class="top">
+<body data-theme="silver">
+<div class="topbar">
 <div class="logo"><svg viewBox="0 0 24 24"><path d="M12 3v10m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>PDF-MO</div>
 <div class="ctrls">
 <button class="cbtn dot" data-th="white" title="White"><span class="sw" style="background:#fff"></span></button>
@@ -87,29 +93,21 @@ body[data-theme="black"]{--bg:#0e0e12;--card:#17171c;--ink:#f5f5f5;--mut:rgba(25
 <button class="cbtn" data-lg="en">EN</button>
 <button class="cbtn" data-lg="zh">中</button>
 </div></div>
-<div class="hero">
-<h1><span data-i18n="t1">COMPRESS</span><br><span data-i18n="t2">PDF.</span></h1>
-<p data-i18n="sub">Drop a PDF, get a smaller one. Same document, less weight.</p>
-</div>
-<div class="priv"><span data-i18n="priv">100% in your browser — files never leave your device</span></div>
-<div class="card">
+<div class="main">
+<div class="head-row"><h1 data-i18n="title">Compress PDF</h1><button class="addfiles" id="addBtn" data-i18n="addfiles">Add files</button></div>
+<p class="sub" data-i18n="sub">Content always preserved — text, images and layout stay exactly as they were. Processed locally, nothing is uploaded.</p>
 <div class="drop" id="drop"><div class="big" data-i18n="drop">Drop PDF here or click to select</div>
-<div class="small" data-i18n="dropnote">Free: one file at a time · Batch is a Pro feature</div>
+<div class="small" data-i18n="dropnote">Drag anywhere on this page · Free: one file at a time · Batch is a Pro feature</div>
 <input type="file" id="file" accept="application/pdf" multiple></div>
-<div class="modes">
-<div class="mode sel" id="modeSmart"><b data-i18n="m1t">Smart — keep the text</b><p data-i18n="m1d">Re-encodes the file and strips metadata. Text stays selectable and searchable. Best for documents, quotations and proofs.</p><span class="tag" data-i18n="free">FREE</span></div>
-<div class="mode" id="modeImage"><b data-i18n="m2t">Image — maximum squeeze</b><p data-i18n="m2d">Re-renders every page as a compressed image. Biggest savings for image-heavy PDFs — text becomes part of the image.</p><span class="tag" data-i18n="free">FREE</span></div>
-</div>
-<div class="settings" id="imgSettings">
-<label><span data-i18n="dpi">Resolution</span>
-<select id="dpi"><option value="72">72 dpi — web / chat</option><option value="150" selected>150 dpi — screen / print</option><option value="300">300 dpi — high quality</option></select></label>
-<label><span data-i18n="q">Image quality</span> <span id="qVal">80%</span>
-<input type="range" id="quality" min="40" max="95" value="80"></label>
-</div>
-<button class="go" id="go" disabled data-i18n="go">Compress</button>
+<div id="fileCard"></div>
+<div class="ana" id="ana"></div>
+<div class="lvlabel" data-i18n="lvlabel">Select compression level:</div>
+<div class="levels" id="levels"></div>
+<div class="actions"><button class="btn outline" id="cancelBtn" data-i18n="cancel">Cancel</button><button class="btn solid" id="goBtn" disabled data-i18n="compress">Compress</button></div>
 <div class="pro-note" id="proNote"></div>
-</div>
 <div class="queue" id="queue"></div>
+<p class="foot"><span data-i18n="foot1">PDF-MO · an OpenX tool · files are processed locally in your browser, nothing is uploaded.</span><br><span data-i18n="foot2">Compression concept inspired by pdfcpu — this tool is an independent browser implementation. Every mode preserves the original content; images it cannot safely recompress are left untouched.</span></p>
+</div>
 <div class="modal" id="proModal"><div class="box">
 <h3 data-i18n="proT">OpenX Pro — Batch compress</h3>
 <p data-i18n="proD">Batch compress lets you drop many PDFs at once and compress them all. Enter your Pro key once — it unlocks Pro on every OpenX tool.</p>
@@ -118,71 +116,121 @@ body[data-theme="black"]{--bg:#0e0e12;--card:#17171c;--ink:#f5f5f5;--mut:rgba(25
 <div class="msg" id="proMsg"></div>
 <p style="margin-top:14px"><a href="https://buymeacoffee.com/whynotartmoney" target="_blank" rel="noopener" data-i18n="getkey">Get a Pro key →</a></p>
 </div></div>
-<p class="foot"><span data-i18n="foot1">PDF-MO · an OpenX tool · files are processed locally in your browser, nothing is uploaded.</span><br><span data-i18n="foot2">Compression engine concept inspired by pdfcpu — this tool is an independent browser implementation.</span></p>
-</div>
 <script>
 const $=s=>document.querySelector(s);
+const LEVELS={high:{maxDim:1200,q:0.60,f:0.12},medium:{maxDim:1800,q:0.80,f:0.30},low:{maxDim:2400,q:0.90,f:0.55}};
 const I18N={
-en:{t1:"COMPRESS",t2:"PDF.",sub:"Drop a PDF, get a smaller one. Same document, less weight.",priv:"100% in your browser — files never leave your device",drop:"Drop PDF here or click to select",dropnote:"Free: one file at a time · Batch is a Pro feature",m1t:"Smart — keep the text",m1d:"Re-encodes the file and strips metadata. Text stays selectable and searchable. Best for documents, quotations and proofs.",m2t:"Image — maximum squeeze",m2d:"Re-renders every page as a compressed image. Biggest savings for image-heavy PDFs — text becomes part of the image.",free:"FREE",dpi:"Resolution",q:"Image quality",go:"Compress",proT:"OpenX Pro — Batch compress",proD:"Batch compress lets you drop many PDFs at once and compress them all. Enter your Pro key once — it unlocks Pro on every OpenX tool.",unlock:"Unlock",close:"Close",getkey:"Get a Pro key →",foot1:"PDF-MO · an OpenX tool · files are processed locally in your browser, nothing is uploaded.",foot2:"Compression engine concept inspired by pdfcpu — this tool is an independent browser implementation.",waiting:"Waiting",working:"Compressing…",done:"Done",error:"Failed",proOn:"Pro unlocked — batch enabled",proOff:"Batch compress is a Pro feature",unlockBtn:"Unlock Pro"},
-zh:{t1:"壓縮",t2:"PDF.",sub:"拖入 PDF，拎返個更細嘅檔案。內容不變，重量減輕。",priv:"100% 喺你瀏覽器入面處理 — 檔案唔會離開你部裝置",drop:"拖 PDF 入嚟，或撳呢度選擇",dropnote:"免費：一次一個檔案 · 批量處理係 Pro 功能",m1t:"智能 — 保留文字",m1d:"重新編碼檔案並清除 metadata，文字仍然可以選取同搜尋。最啱文件、報價單同打稿。",m2t:"圖像 — 壓到最盡",m2d:"將每一頁重新渲染成壓縮圖像，圖片多嘅 PDF 慳得最多 — 文字會變成圖像一部分。",free:"免費",dpi:"解像度",q:"圖像質素",go:"開始壓縮",proT:"OpenX Pro — 批量壓縮",proD:"批量壓縮可以一次拖入多個 PDF 全部壓晒。輸入一次 Pro key，成個 OpenX 系列工具都解鎖。",unlock:"解鎖",close:"關閉",getkey:"攞 Pro key →",foot1:"PDF-MO · OpenX 工具 · 檔案喺你瀏覽器本地處理，唔會上傳。",foot2:"壓縮概念參考 pdfcpu — 本工具為獨立嘅瀏覽器實現。",waiting:"等緊",working:"壓縮緊…",done:"完成",error:"失敗",proOn:"Pro 已解鎖 — 可以批量處理",proOff:"批量壓縮係 Pro 功能",unlockBtn:"解鎖 Pro"}};
+en:{title:"Compress PDF",addfiles:"Add files",sub:"Content always preserved — text, images and layout stay exactly as they were. Processed locally, nothing is uploaded.",drop:"Drop PDF here or click to select",dropnote:"Drag anywhere on this page · Free: one file at a time · Batch is a Pro feature",lvlabel:"Select compression level:",cancel:"Cancel",compress:"Compress",proT:"OpenX Pro — Batch compress",proD:"Batch compress lets you drop many PDFs at once and compress them all. Enter your Pro key once — it unlocks Pro on every OpenX tool.",unlock:"Unlock",close:"Close",getkey:"Get a Pro key →",foot1:"PDF-MO · an OpenX tool · files are processed locally in your browser, nothing is uploaded.",foot2:"Compression concept inspired by pdfcpu — this tool is an independent browser implementation. Every mode preserves the original content; images it cannot safely recompress are left untouched.",lvlHigh:"High",lvlMed:"Medium",lvlLow:"Low",dHigh:"Smallest size, standard quality",dMed:"Medium size, better quality",dLow:"Larger size, highest quality",tagBest:"Best compression",est:"Estimated",analyzing:"Analyzing…",pages:"pages",images:"images",waiting:"Waiting",working:"Compressing…",done:"Done",error:"Failed",fallback:"Original kept — output did not pass verification",proOn:"Pro unlocked — batch enabled",proOff:"Batch compress is a Pro feature",unlockBtn:"Unlock Pro",encErr:"This PDF is encrypted or cannot be read"},
+zh:{title:"壓縮 PDF",addfiles:"加入檔案",sub:"內容一定保留 — 文字、圖片、排版原封不動。全程本地處理，唔會上傳。",drop:"拖 PDF 入嚟，或撳呢度選擇",dropnote:"成版都拖得 · 免費：一次一個檔案 · 批量處理係 Pro 功能",lvlabel:"選擇壓縮程度：",cancel:"取消",compress:"開始壓縮",proT:"OpenX Pro — 批量壓縮",proD:"批量壓縮可以一次拖入多個 PDF 全部壓晒。輸入一次 Pro key，成個 OpenX 系列工具都解鎖。",unlock:"解鎖",close:"關閉",getkey:"攞 Pro key →",foot1:"PDF-MO · OpenX 工具 · 檔案喺你瀏覽器本地處理，唔會上傳。",foot2:"壓縮概念參考 pdfcpu — 本工具為獨立嘅瀏覽器實現。所有模式都保留原有內容；唔能夠安全重壓嘅圖片會原樣保留。",lvlHigh:"高",lvlMed:"中",lvlLow:"低",dHigh:"檔案最細，畫質標準",dMed:"大細適中，畫質較好",dLow:"檔案較大，畫質最高",tagBest:"壓縮效果最好",est:"預估約",analyzing:"分析緊…",pages:"頁",images:"張圖片",waiting:"等緊",working:"壓縮緊…",done:"完成",error:"失敗",fallback:"已保留原檔 — 成品驗證未通過",proOn:"Pro 已解鎖 — 可以批量處理",proOff:"批量壓縮係 Pro 功能",unlockBtn:"解鎖 Pro",encErr:"此 PDF 已加密或無法讀取"}};
 let lang=localStorage.getItem('pdf-mo-lang')||'en';
+let level='high';
+let pro=localStorage.getItem('openx-pro-ok')==='1';
+let queue=[];
+function fmt(b){if(b<1024)return b+' B';if(b<1048576)return (b/1024).toFixed(1)+' KB';return (b/1048576).toFixed(2)+' MB';}
+function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function setLang(l){lang=l;localStorage.setItem('pdf-mo-lang',l);
 document.querySelectorAll('[data-i18n]').forEach(el=>{el.textContent=I18N[l][el.dataset.i18n]||el.textContent});
 document.querySelectorAll('[data-lg]').forEach(b=>b.classList.toggle('on',b.dataset.lg===l));
-document.documentElement.lang=l==='zh'?'zh-Hant':'en';renderNote();renderQueue();}
+document.documentElement.lang=l==='zh'?'zh-Hant':'en';renderLevels();renderNote();renderQueue();renderFileCard();}
 const thBtns=[...document.querySelectorAll('[data-th]')],lgBtns=[...document.querySelectorAll('[data-lg]')];
 function setTheme(t){document.body.dataset.theme=t;localStorage.setItem('pdf-mo-theme',t);thBtns.forEach(b=>b.classList.toggle('on',b.dataset.th===t));}
 thBtns.forEach(b=>b.onclick=()=>setTheme(b.dataset.th));
 lgBtns.forEach(b=>b.onclick=()=>setLang(b.dataset.lg));
 setTheme(localStorage.getItem('pdf-mo-theme')||'silver');
-let pro=localStorage.getItem('openx-pro-ok')==='1';
 function renderNote(){const n=$('#proNote');n.innerHTML=pro?I18N[lang].proOn:I18N[lang].proOff+' · <button id="openPro">'+I18N[lang].unlockBtn+'</button>';
 const b=$('#openPro');if(b)b.onclick=()=>$('#proModal').classList.add('show');}
-let mode='smart';
-$('#modeSmart').onclick=()=>{mode='smart';$('#modeSmart').classList.add('sel');$('#modeImage').classList.remove('sel');$('#imgSettings').classList.remove('show');};
-$('#modeImage').onclick=()=>{mode='image';$('#modeImage').classList.add('sel');$('#modeSmart').classList.remove('sel');$('#imgSettings').classList.add('show');};
-$('#quality').oninput=e=>{$('#qVal').textContent=e.target.value+'%';};
-function fmt(b){if(b<1024)return b+' B';if(b<1048576)return (b/1024).toFixed(1)+' KB';return (b/1048576).toFixed(2)+' MB';}
-let queue=[];
-function renderQueue(){$('#queue').innerHTML=queue.map((q,i)=>{let st=q.status==='done'?I18N[lang].done+' · '+fmt(q.orig)+' → '+fmt(q.new)+' <span class="save">'+q.save+'%</span>':q.status==='working'?I18N[lang].working:q.status==='error'?I18N[lang].error+': '+q.err:I18N[lang].waiting;
-return '<div class="qrow"><div class="nm">'+esc(q.file.name)+'</div><div class="meta">'+st+'</div>'+(q.status==='done'?'<button class="dl" onclick="dl('+i+')">↓ '+I18N[lang].done+'</button>':'')+'<div class="bar"><i style="width:'+(q.pct||0)+'%"></i></div></div>';}).join('');
-$('#go').disabled=!queue.length;}
-function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
-window.dl=i=>{const q=queue[i];if(!q.url)return;const a=document.createElement('a');a.href=q.url;a.download=q.file.name.replace(/\.pdf$/i,'')+'-compressed.pdf';a.click();};
-function addFiles(list){let arr=[...list].filter(f=>/\.pdf$/i.test(f.name));
-if(!arr.length)return;
+function estFor(q,lv){if(!q.analyzed)return '—';const other=q.orig-q.imgBytes;return fmt(Math.round(other*0.98+q.imgBytes*LEVELS[lv].f));}
+function renderLevels(){$('#levels').innerHTML=['high','medium','low'].map(lv=>{const L=I18N[lang];const nm=lv==='high'?L.lvlHigh:lv==='medium'?L.lvlMed:L.lvlLow;const d=lv==='high'?L.dHigh:lv==='medium'?L.dMed:L.dLow;
+return '<button class="lv'+(level===lv?' sel':'')+'" data-lv="'+lv+'">'+(lv==='high'?'<span class="tag">'+L.tagBest+'</span>':'')+'<span class="dot"></span><b>'+nm+'</b><p>'+d+'</p><div class="est">'+L.est+' '+(queue[0]?estFor(queue[0],lv):'—')+'</div></button>';}).join('');
+document.querySelectorAll('#levels .lv').forEach(b=>b.onclick=()=>{level=b.dataset.lv;renderLevels();});}
+function renderFileCard(){const c=$('#fileCard');if(!queue.length){c.innerHTML='';return;}
+const q=queue[0];c.innerHTML='<div class="filecard">'+(q.thumb?'<img src="'+q.thumb+'" alt="">':'')+'<div style="flex:1"><div class="nm">'+esc(q.file.name)+'</div><div class="meta">PDF · '+fmt(q.orig)+(q.analyzed?' · '+q.pages+' '+I18N[lang].pages+' · '+q.imgCount+' '+I18N[lang].images:'')+'</div></div><button class="x" onclick="rmFile(0)">×</button></div>';}
+window.rmFile=()=>{queue=[];renderFileCard();renderQueue();renderLevels();$('#goBtn').disabled=true;$('#ana').textContent='';};
+function renderQueue(){$('#queue').innerHTML=queue.map((q,i)=>{let st,cls='';
+if(q.status==='done'){st=I18N[lang].done+' · '+fmt(q.orig)+' → '+fmt(q.new)+' <span class="save">'+q.save+'%</span>';if(q.fallback){st+=' <span class="warn">· '+I18N[lang].fallback+'</span>';}}
+else if(q.status==='working')st=I18N[lang].working;
+else if(q.status==='error')st=I18N[lang].error+': '+q.err;
+else st=I18N[lang].waiting;
+return '<div class="qrow"><div class="nm">'+esc(q.file.name)+'</div><div class="meta">'+st+'</div>'+(q.status==='done'?'<button class="dl" onclick="dl('+i+')">↓ '+I18N[lang].done+'</button>':'')+'<div class="bar"><i style="width:'+(q.pct||0)+'%"></i></div></div>';}).join('');}
+window.dl=i=>{const q=queue[i];if(!q.url)return;const a=document.createElement('a');a.href=q.url;a.download=q.fallback?q.file.name:q.file.name.replace(/\.pdf$/i,'')+'-compressed.pdf';a.click();};
+function pdfjs(){if(window['pdfjsLib']){pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';}return pdfjsLib;}
+async function analyze(q){try{$('#ana').textContent=I18N[lang].analyzing;
+const bytes=new Uint8Array(await q.file.arrayBuffer());
+const src=await pdfjs().getDocument({data:bytes}).promise;q.pages=src.numPages;
+const pg=await src.getPage(1);const vp=pg.getViewport({scale:120/Math.max(pg.getViewport({scale:1}).width,1)});
+const cv=document.createElement('canvas');cv.width=Math.floor(vp.width);cv.height=Math.floor(vp.height);
+await pg.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;q.thumb=cv.toDataURL('image/jpeg',0.7);
+const doc=await PDFLib.PDFDocument.load(bytes);let imgBytes=0,imgCount=0;
+for(const [,obj] of doc.context.enumerateIndirectObjects()){if(!(obj instanceof PDFLib.PDFRawStream))continue;
+const sub=obj.dict.lookup(PDFLib.PDFName.of('Subtype'));
+if(sub&&sub.toString()==='/Image'){imgCount++;imgBytes+=obj.getContents().length;}}
+q.imgBytes=imgBytes;q.imgCount=imgCount;q.analyzed=true;q.bytes=bytes;
+$('#ana').textContent='';renderFileCard();renderLevels();}
+catch(e){q.err=I18N[lang].encErr;q.status='error';renderQueue();}}
+async function addFiles(list){let arr=[...list].filter(f=>/\.pdf$/i.test(f.name));if(!arr.length)return;
 if(!pro&&arr.length>1){arr=arr.slice(0,1);$('#proModal').classList.add('show');}
-queue=queue.concat(arr.map(f=>({file:f,status:'waiting',orig:f.size,pct:0})));
-renderQueue();}
-const drop=$('#drop');
-drop.onclick=()=>$('#file').click();
-drop.ondragover=e=>{e.preventDefault();drop.classList.add('over');};
-drop.ondragleave=()=>drop.classList.remove('over');
-drop.ondrop=e=>{e.preventDefault();drop.classList.remove('over');addFiles(e.dataTransfer.files);};
-$('#file').onchange=e=>{addFiles(e.target.files);e.target.value='';};
-async function smartCompress(bytes){const doc=await PDFLib.PDFDocument.load(bytes);
+queue=queue.concat(arr.map(f=>({file:f,status:'waiting',orig:f.size,pct:0,analyzed:false})));
+renderFileCard();renderQueue();renderLevels();$('#goBtn').disabled=false;
+for(const q of queue)if(!q.analyzed&&q.status!=='error')await analyze(q);}
+async function decodeJpeg(raw){try{return await createImageBitmap(new Blob([raw],{type:'image/jpeg'}));}
+catch(e){return await new Promise((res,rej)=>{const img=new Image();img.onload=()=>res(img);img.onerror=rej;img.src=URL.createObjectURL(new Blob([raw],{type:'image/jpeg'}));});}}
+async function compressPdf(bytes,cfg){const doc=await PDFLib.PDFDocument.load(bytes);
+const ctx=doc.context;const P=PDFLib;
+for(const [ref,obj] of ctx.enumerateIndirectObjects()){
+if(!(obj instanceof P.PDFRawStream))continue;
+try{const d=obj.dict;
+const sub=d.lookup(P.PDFName.of('Subtype'));if(!sub||sub.toString()!=='/Image')continue;
+if(d.lookup(P.PDFName.of('Mask')))continue;
+const filt=d.lookup(P.PDFName.of('Filter'));let fName=null;
+if(filt instanceof P.PDFName)fName=filt.toString();
+else if(filt&&typeof filt.asArray==='function'){const a=filt.asArray();if(a.length&&a[0] instanceof P.PDFName)fName=a[0].toString();}
+if(fName!=='/DCTDecode')continue;
+const cs=d.lookup(P.PDFName.of('ColorSpace'));if(!(cs instanceof P.PDFName))continue;
+if(cs.toString()!=='/DeviceRGB'&&cs.toString()!=='/DeviceGray')continue;
+const bpc=d.lookup(P.PDFName.of('BitsPerComponent'));if(!bpc||bpc.asNumber()!==8)continue;
+const W=d.lookup(P.PDFName.of('Width')).asNumber(),H=d.lookup(P.PDFName.of('Height')).asNumber();
+if(!W||!H||W*H>16000000)continue;
+const raw=obj.getContents();if(raw.length<2||raw[0]!==0xFF||raw[1]!==0xD8)continue;
+const bmp=await decodeJpeg(raw);
+const scale=Math.min(1,cfg.maxDim/Math.max(W,H));
+const nw=Math.max(1,Math.round(W*scale)),nh=Math.max(1,Math.round(H*scale));
+const cv=document.createElement('canvas');cv.width=nw;cv.height=nh;
+cv.getContext('2d').drawImage(bmp,0,0,nw,nh);
+const blob=await new Promise(r=>cv.toBlob(r,'image/jpeg',cfg.q));if(!blob)continue;
+const nb=new Uint8Array(await blob.arrayBuffer());if(nb.length>=raw.length)continue;
+const nd=P.PDFDict.withContext(ctx);
+nd.set(P.PDFName.of('Type'),P.PDFName.of('XObject'));
+nd.set(P.PDFName.of('Subtype'),P.PDFName.of('Image'));
+nd.set(P.PDFName.of('Width'),P.PDFNumber.of(nw));
+nd.set(P.PDFName.of('Height'),P.PDFNumber.of(nh));
+nd.set(P.PDFName.of('ColorSpace'),P.PDFName.of('DeviceRGB'));
+nd.set(P.PDFName.of('BitsPerComponent'),P.PDFNumber.of(8));
+nd.set(P.PDFName.of('Filter'),P.PDFName.of('DCTDecode'));
+const sm=d.lookup(P.PDFName.of('SMask'));if(sm)nd.set(P.PDFName.of('SMask'),sm);
+ctx.assign(ref,P.PDFRawStream.of(nd,nb));}
+catch(e){/* leave this image untouched — preservation first */}}
 doc.setTitle('');doc.setAuthor('');doc.setSubject('');doc.setKeywords([]);doc.setProducer('');doc.setCreator('');
 return await doc.save({useObjectStreams:true});}
-async function imageCompress(bytes,dpi,quality,onp){if(window['pdfjsLib']){pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';}
-const src=await pdfjsLib.getDocument({data:bytes}).promise;
-const out=await PDFLib.PDFDocument.create();
-for(let p=1;p<=src.numPages;p++){const page=await src.getPage(p);
-const vp=page.getViewport({scale:dpi/72});
-const cv=document.createElement('canvas');cv.width=Math.floor(vp.width);cv.height=Math.floor(vp.height);
-await page.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;
-const blob=await new Promise(r=>cv.toBlob(r,'image/jpeg',quality));
-const img=await out.embedJpg(await blob.arrayBuffer());
-const pg=out.addPage([cv.width*72/dpi,cv.height*72/dpi]);pg.drawImage(img,{x:0,y:0,width:pg.getWidth(),height:pg.getHeight()});
-onp(Math.round(p/src.numPages*100));}
-return await out.save({useObjectStreams:true});}
-$('#go').onclick=async()=>{$('#go').disabled=true;
-for(let i=0;i<queue.length;i++){const q=queue[i];if(q.status==='done')continue;
+$('#goBtn').onclick=async()=>{$('#goBtn').disabled=true;
+for(let i=0;i<queue.length;i++){const q=queue[i];if(q.status==='done'||q.status==='error')continue;
 q.status='working';q.pct=2;renderQueue();
-try{const bytes=new Uint8Array(await q.file.arrayBuffer());
-let out=mode==='smart'?await smartCompress(bytes):await imageCompress(bytes,+$('#dpi').value,$('#quality').value/100,p=>{q.pct=p;renderQueue();});
-q.new=out.length;q.save=Math.max(0,Math.round((1-q.new/q.orig)*100));q.blob=new Blob([out],{type:'application/pdf'});q.url=URL.createObjectURL(q.blob);q.status='done';q.pct=100;}
-catch(err){q.status='error';q.err=err.message||'error';}}
-renderQueue();$('#go').disabled=false;};
+try{if(!q.bytes)q.bytes=new Uint8Array(await q.file.arrayBuffer());
+const inPages=q.pages||(await PDFLib.PDFDocument.load(q.bytes)).getPageCount();
+let out=await compressPdf(q.bytes,LEVELS[level]);
+let ok=false;try{const chk=await PDFLib.PDFDocument.load(out);ok=chk.getPageCount()===inPages;}catch(e){ok=false;}
+if(!ok){q.fallback=true;q.new=q.orig;q.save=0;q.blob=new Blob([q.bytes],{type:'application/pdf'});}
+else{q.new=out.length;q.save=Math.max(0,Math.round((1-q.new/q.orig)*100));q.blob=new Blob([out],{type:'application/pdf'});}
+q.url=URL.createObjectURL(q.blob);q.status='done';q.pct=100;}
+catch(err){q.status='error';q.err=err.message||'error';}
+renderQueue();}
+$('#goBtn').disabled=false;};
+$('#cancelBtn').onclick=()=>{queue=[];renderFileCard();renderQueue();renderLevels();$('#goBtn').disabled=true;$('#ana').textContent='';};
+$('#addBtn').onclick=()=>$('#file').click();
+$('#drop').onclick=()=>$('#file').click();
+$('#file').onchange=e=>{addFiles(e.target.files);e.target.value='';};
+document.addEventListener('dragover',e=>{e.preventDefault();document.body.classList.add('dragging');});
+document.addEventListener('dragleave',e=>{if(e.clientX===0&&e.clientY===0)document.body.classList.remove('dragging');});
+document.addEventListener('drop',e=>{e.preventDefault();document.body.classList.remove('dragging');addFiles(e.dataTransfer.files);});
 $('#proClose').onclick=()=>$('#proModal').classList.remove('show');
 $('#proModal').onclick=e=>{if(e.target.id==='proModal')e.target.classList.remove('show');};
 $('#proUnlock').onclick=async()=>{const key=$('#proKey').value.trim();const msg=$('#proMsg');
@@ -195,6 +243,6 @@ msg.textContent=lang==='zh'?'已解鎖！':'Unlocked!';msg.className='msg ok';re
 setTimeout(()=>$('#proModal').classList.remove('show'),900);}
 else{msg.textContent=lang==='zh'?'Key 不正確，請再試。':'Invalid key, please try again.';msg.className='msg err';}}
 catch(e){msg.textContent=lang==='zh'?'驗證失敗，請檢查網絡再試。':'Validation failed, please check your connection.';msg.className='msg err';}};
-setLang(lang);renderNote();
+setLang(lang);renderNote();renderLevels();
 </script>
 </body></html>
